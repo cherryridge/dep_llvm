@@ -22,18 +22,32 @@ jobs:
         runs-on: macos-latest
         steps:
 
+          - name: Install x64 Zstd
+            shell: bash
+            run: |
+                arch -x86_64 /usr/local/bin/brew install zstd
+
           - name: Checkout LLVM
             shell: bash
             run: |
                 git clone https://github.com/llvm/llvm-project --depth 1 --branch release/${{inputs.llvmMajor}}.x
 
+          - name: Configure LLVM ${{inputs.llvmMajor}}
+            shell: bash
+            run: |
+                cd llvm-project
+                cmake -S llvm -B build -G Ninja -CMAKE_PREFIX_PATH=/usr/local -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX="$PWD/install" -DCMAKE_OSX_ARCHITECTURES="x86_64" -DLLVM_ENABLE_PROJECTS="clang;lld" -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_ZLIB=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=ON -DLLVM_INCLUDE_UTILS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_TARGETS_TO_BUILD="X86;AArch64" -DLLVM_INCLUDE_BENCHMARKS=OFF
+
           - name: Build LLVM ${{inputs.llvmMajor}}
             shell: pwsh
             run: |
                 cd llvm-project
-                mkdir build
-                cmake -S llvm -B build -G Ninja -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX="$PWD/install" -DCMAKE_OSX_ARCHITECTURES="x86_64" -DLLVM_ENABLE_PROJECTS="clang;lld" -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_ZLIB=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=ON -DLLVM_INCLUDE_UTILS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_TARGETS_TO_BUILD="X86;AArch64" -DLLVM_INCLUDE_BENCHMARKS=OFF
                 cmake --build build --config MinSizeRel --parallel
+
+          - name: Install LLVM ${{inputs.llvmMajor}}
+            shell: pwsh
+            run: |
+                cd llvm-project
                 cmake --install build --config MinSizeRel
 
           - name: Compress Product
@@ -58,13 +72,22 @@ jobs:
             run: |
                 git clone https://github.com/llvm/llvm-project --depth 1 --branch release/${{inputs.llvmMajor}}.x
 
+          - name: Configure LLVM ${{inputs.llvmMajor}}
+            shell: bash
+            run: |
+                cd llvm-project
+                cmake -S llvm -B build -G Ninja -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX="$PWD/install" -DCMAKE_OSX_ARCHITECTURES="arm64" -DLLVM_ENABLE_PROJECTS="clang;lld" -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_ZLIB=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=ON -DLLVM_INCLUDE_UTILS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_TARGETS_TO_BUILD="X86;AArch64" -DLLVM_INCLUDE_BENCHMARKS=OFF
+
           - name: Build LLVM ${{inputs.llvmMajor}}
             shell: pwsh
             run: |
                 cd llvm-project
-                mkdir build
-                cmake -S llvm -B build -G Ninja -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX="$PWD/install" -DCMAKE_OSX_ARCHITECTURES="arm64" -DLLVM_ENABLE_PROJECTS="clang;lld" -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_ZLIB=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=ON -DLLVM_INCLUDE_UTILS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_TARGETS_TO_BUILD="X86;AArch64" -DLLVM_INCLUDE_BENCHMARKS=OFF
                 cmake --build build --config MinSizeRel --parallel
+
+          - name: Install LLVM ${{inputs.llvmMajor}}
+            shell: pwsh
+            run: |
+                cd llvm-project
                 cmake --install build --config MinSizeRel
 
           - name: Compress Product
