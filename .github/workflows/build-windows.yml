@@ -73,7 +73,7 @@ jobs:
           - name: Enable MSVC Toolchain Environment
             uses: ilammy/msvc-dev-cmd@v1
             with:
-                arch: amd64_arm64
+                arch: amd64
 
           - name: Install Ninja
             uses: llvm/actions/install-ninja@main
@@ -89,6 +89,11 @@ jobs:
                 cd llvm-project
                 cmake -S llvm -B build-host -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_ENABLE_PROJECTS="clang"
                 cmake --build build-host --target llvm-tblgen clang-tblgen llvm-min-tblgen --config Release --parallel
+
+          - name: Reconfigure MSVC Toolchain Environment
+            uses: ilammy/msvc-dev-cmd@v1
+            with:
+                arch: amd64_arm64
 
           - name: Configure LLVM ${{inputs.llvmMajor}}
             shell: pwsh
