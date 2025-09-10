@@ -25,7 +25,7 @@ jobs:
           - name: Install x64 Zstd
             shell: bash
             run: |
-                arch -x86_64 /usr/local/bin/brew install zstd
+                arch -x86_64 brew install zstd
 
           - name: Checkout LLVM
             shell: bash
