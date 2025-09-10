@@ -36,24 +36,24 @@ jobs:
             shell: bash
             run: |
                 cd llvm-project
-                cmake -S llvm -B build -G Ninja -DCMAKE_PREFIX_PATH=/usr/local -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX="$PWD/install" -DCMAKE_OSX_ARCHITECTURES="x86_64" -DLLVM_ENABLE_PROJECTS="clang;lld" -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_ZLIB=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=ON -DLLVM_INCLUDE_UTILS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_TARGETS_TO_BUILD="X86;AArch64" -DLLVM_INCLUDE_BENCHMARKS=OFF
+                cmake -S llvm -B build -G Ninja -DCMAKE_PREFIX_PATH=/usr/local -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX="$PWD/install" -DCMAKE_OSX_ARCHITECTURES="x86_64" -DLLVM_ENABLE_PROJECTS="clang;lld" -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_ZLIB=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=ON -DLLVM_INCLUDE_UTILS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_TARGETS_TO_BUILD=X86 -DLLVM_INCLUDE_BENCHMARKS=OFF
 
           - name: Build LLVM ${{inputs.llvmMajor}}
-            shell: pwsh
+            shell: bash
             run: |
                 cd llvm-project
                 cmake --build build --config MinSizeRel --parallel
 
           - name: Install LLVM ${{inputs.llvmMajor}}
-            shell: pwsh
+            shell: bash
             run: |
                 cd llvm-project
                 cmake --install build --config MinSizeRel
 
           - name: Compress Product
-            shell: pwsh
+            shell: bash
             run: |
-                7z a llvm_macos_x64.7z ./llvm-project/install/*
+                7z a llvm_macos_x64.7z ./llvm-project/install/bin ./llvm-project/install/include ./llvm-project/install/lib ./llvm-project/install/libexec ./llvm-project/install/share
 
           - name: Upload Archive
             uses: actions/upload-artifact@v4
@@ -76,24 +76,24 @@ jobs:
             shell: bash
             run: |
                 cd llvm-project
-                cmake -S llvm -B build -G Ninja -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX="$PWD/install" -DCMAKE_OSX_ARCHITECTURES="arm64" -DLLVM_ENABLE_PROJECTS="clang;lld" -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_ZLIB=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=ON -DLLVM_INCLUDE_UTILS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_TARGETS_TO_BUILD="X86;AArch64" -DLLVM_INCLUDE_BENCHMARKS=OFF
+                cmake -S llvm -B build -G Ninja -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX="$PWD/install" -DCMAKE_OSX_ARCHITECTURES="arm64" -DLLVM_ENABLE_PROJECTS="clang;lld" -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_ZLIB=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=ON -DLLVM_INCLUDE_UTILS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_TARGETS_TO_BUILD=AArch64 -DLLVM_INCLUDE_BENCHMARKS=OFF
 
           - name: Build LLVM ${{inputs.llvmMajor}}
-            shell: pwsh
+            shell: bash
             run: |
                 cd llvm-project
                 cmake --build build --config MinSizeRel --parallel
 
           - name: Install LLVM ${{inputs.llvmMajor}}
-            shell: pwsh
+            shell: bash
             run: |
                 cd llvm-project
                 cmake --install build --config MinSizeRel
 
           - name: Compress Product
-            shell: pwsh
+            shell: bash
             run: |
-                7z a llvm_macos_arm64.7z ./llvm-project/install/*
+                7z a llvm_macos_arm64.7z ./llvm-project/install/bin ./llvm-project/install/include ./llvm-project/install/lib ./llvm-project/install/libexec ./llvm-project/install/share
 
           - name: Upload Archive
             uses: actions/upload-artifact@v4
