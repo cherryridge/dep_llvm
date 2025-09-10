@@ -1,0 +1,97 @@
+﻿name: Build on Windows
+
+on:
+    workflow_call:
+        inputs:
+            llvmMajor:
+                type: string
+                description: LLVM major version
+                required: true
+        outputs:
+            runid:
+                value: ${{github.run_id}}
+    workflow_dispatch:
+        inputs:
+            llvmMajor:
+                type: string
+                description: LLVM major version
+                required: true
+
+jobs:
+    x64:
+        runs-on: windows-latest
+        steps:
+
+          - name: Enable MSVC toolchain env
+            uses: ilammy/msvc-dev-cmd@v1
+            with:
+                arch: x64
+
+          - name: Install Ninja
+            uses: llvm/actions/install-ninja@main
+
+          - name: Checkout LLVM
+            shell: pwsh
+            run: |
+                git clone https://github.com/llvm/llvm-project --depth 1 --branch release/${{inputs.llvmMajor}}.x
+
+          - name: Build LLVM ${{inputs.llvmMajor}}
+            shell: pwsh
+            run: |
+                cd llvm-project
+                mkdir build
+                cmake -S llvm -B build -G Ninja -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_INSTALL_PREFIX="$PWD/install" -DLLVM_ENABLE_PROJECTS="clang;lld" -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_ZLIB=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=ON -DLLVM_INCLUDE_UTILS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_TARGETS_TO_BUILD="X86;AArch64" -DLLVM_INCLUDE_BENCHMARKS=OFF
+                cmake --build build --config MinSizeRel --parallel
+                cmake --install build --config MinSizeRel
+
+          - name: Compress Product
+            shell: pwsh
+            run: |
+                7z a llvm_windows_x64.7z .\install\*
+
+          - name: Upload Archive
+            uses: actions/upload-artifact@v4
+            with:
+                name: llvm_windows_x64
+                path: |
+                    *.7z
+                retention-days: 7
+
+    arm64:
+        runs-on: windows-latest
+        steps:
+
+          - name: Enable MSVC toolchain env
+            uses: ilammy/msvc-dev-cmd@v1
+            with:
+                arch: amd64_arm64
+
+          - name: Install Ninja
+            uses: llvm/actions/install-ninja@main
+
+          - name: Checkout LLVM
+            shell: pwsh
+            run: |
+                git clone https://github.com/llvm/llvm-project --depth 1 --branch release/${{inputs.llvmMajor}}.x
+
+          - name: Build LLVM ${{inputs.llvmMajor}}
+            shell: pwsh
+            run: |
+                cd llvm-project
+                mkdir build
+                cmake -S llvm -B build -G Ninja -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_INSTALL_PREFIX="$PWD/install" -DLLVM_ENABLE_PROJECTS="clang;lld" -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_ZLIB=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=ON -DLLVM_INCLUDE_UTILS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_TARGETS_TO_BUILD="X86;AArch64" -DLLVM_INCLUDE_BENCHMARKS=OFF -DCMAKE_SYSTEM_PROCESSOR=ARM64
+                cmake --build build --config MinSizeRel --parallel
+                cmake --install build --config MinSizeRel
+
+          - name: Compress Product
+            shell: pwsh
+            run: |
+                7z a llvm_windows_arm64.7z .\install\*
+
+          - name: Upload Archive
+            uses: actions/upload-artifact@v4
+            with:
+                name: llvm_windows_arm64
+                path: |
+                    *.7z
+                retention-days: 7

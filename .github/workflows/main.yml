@@ -1,0 +1,135 @@
+﻿name: Main Task
+
+permissions:
+    contents: write
+
+on:
+    workflow_call:
+        inputs:
+            llvmMajor:
+                type: string
+                description: LLVM major version
+                required: true
+        outputs:
+            runid:
+                value: ${{github.run_id}}
+    workflow_dispatch:
+        inputs:
+            llvmMajor:
+                type: string
+                description: LLVM major version
+                required: true
+
+jobs:
+    check:
+        runs-on: ubuntu-latest
+        outputs:
+            should_build: ${{steps.should_build.outputs.should_build}}
+        steps:
+
+          - name: Checkout This Repo
+            uses: actions/checkout@v4
+            with:
+                ref: main
+
+          - name: Check This Repo's Tags
+            id: should_build
+            shell: bash
+            run: |
+                cd dep_llvm
+                git fetch --tags
+                if git tag -l | grep -q "^${{inputs.llvmMajor}}$"; then
+                    echo "Tag ${{inputs.llvmMajor}} already exists. Skipping build."
+                    echo "should_build=false" >> $GITHUB_OUTPUT
+                else
+                    echo "Tag ${{inputs.llvmMajor}} does not exist. Proceeding with build."
+                    echo "should_build=true" >> $GITHUB_OUTPUT
+                fi
+
+    build-windows:
+        needs: check
+        if: needs.check.outputs.should_build == 'true'
+        uses: ./.github/workflows/build-windows.yml
+        with:
+            llvmMajor: ${{inputs.llvmMajor}}
+
+    build-linux:
+        needs: check
+        if: needs.check.outputs.should_build == 'true'
+        uses: ./.github/workflows/build-linux.yml
+        with:
+            llvmMajor: ${{inputs.llvmMajor}}
+
+    build-macos:
+        needs: check
+        if: needs.check.outputs.should_build == 'true'
+        uses: ./.github/workflows/build-macos.yml
+        with:
+            llvmMajor: ${{inputs.llvmMajor}}
+
+    release-artifacts:
+        needs: [build-windows, build-linux, build-macos]
+        runs-on: ubuntu-latest
+        steps:
+
+          - name: Download Artifact llvm_windows_x64
+            uses: actions/download-artifact@v4
+            with:
+                name: llvm_windows_x64
+                path: llvm_windows_x64
+                github-token: ${{github.token}}
+                repository: ${{github.repository}}
+                run-id: ${{needs.build-windows.outputs.runid}}
+
+          - name: Download Artifact llvm_windows_arm64
+            uses: actions/download-artifact@v4
+            with:
+                name: llvm_windows_arm64
+                path: llvm_windows_arm64
+                github-token: ${{github.token}}
+                repository: ${{github.repository}}
+                run-id: ${{needs.build-windows.outputs.runid}}
+
+          - name: Download Artifact llvm_linux_x64
+            uses: actions/download-artifact@v4
+            with:
+                name: llvm_linux_x64
+                path: llvm_linux_x64
+                github-token: ${{github.token}}
+                repository: ${{github.repository}}
+                run-id: ${{needs.build-linux.outputs.runid}}
+
+          - name: Download Artifact llvm_linux_arm64
+            uses: actions/download-artifact@v4
+            with:
+                name: llvm_linux_arm64
+                path: llvm_linux_arm64
+                github-token: ${{github.token}}
+                repository: ${{github.repository}}
+                run-id: ${{needs.build-linux.outputs.runid}}
+
+          - name: Download Artifact llvm_macos_x64
+            uses: actions/download-artifact@v4
+            with:
+                name: llvm_macos_x64
+                path: llvm_macos_x64
+                github-token: ${{github.token}}
+                repository: ${{github.repository}}
+                run-id: ${{needs.build-macos.outputs.runid}}
+
+          - name: Download Artifact llvm_macos_arm64
+            uses: actions/download-artifact@v4
+            with:
+                name: llvm_macos_arm64
+                path: llvm_macos_arm64
+                github-token: ${{github.token}}
+                repository: ${{github.repository}}
+                run-id: ${{needs.build-macos.outputs.runid}}
+
+          - name: Release Artifacts
+            uses: ncipollo/release-action@v1.16.0
+            with:
+                artifacts: llvm_windows_x64/llvm_windows_x64.7z, llvm_windows_arm64/llvm_windows_arm64.7z, llvm_linux_x64/llvm_linux_x64.7z, llvm_linux_arm64/llvm_linux_arm64.7z, llvm_macos_x64/llvm_macos_x64.7z, llvm_macos_arm64/llvm_macos_arm64.7z
+                commit: main
+                tag: ${{inputs.llvmMajor}}
+                body: Version ${{inputs.llvmMajor}}
