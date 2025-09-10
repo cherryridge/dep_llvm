@@ -83,11 +83,14 @@ jobs:
             shell: bash
             run: |
                 cd llvm-project
-                cmake -S llvm -B build-host -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_ENABLE_PROJECTS="clang"
+                cmake -S llvm -B build-host -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_ENABLE_PROJECTS="clang" -DLLVM_OPTIMIZED_TABLEGEN=ON
                 cmake --build build-host --target llvm-tblgen clang-tblgen llvm-min-tblgen --config Release --parallel
 
           - name: Configure LLVM ${{inputs.llvmMajor}}
             shell: bash
+            env:
+                CC: aarch64-linux-gnu-gcc
+                CXX: aarch64-linux-gnu-g++
             run: |
                 cd llvm-project
                 mkdir build
