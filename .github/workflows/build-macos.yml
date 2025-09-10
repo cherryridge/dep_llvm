@@ -19,13 +19,12 @@ on:
 
 jobs:
     x64:
-        runs-on: ubuntu-latest
+        runs-on: macos-latest
         steps:
 
           - name: Update Toolchain
             shell: bash
             run: |
-                eval "$(/opt/homebrew/bin/brew shellenv)"
                 brew update
                 brew install ninja cmake
 
@@ -57,13 +56,12 @@ jobs:
                 retention-days: 7
 
     arm64:
-        runs-on: ubuntu-latest
+        runs-on: macos-latest
         steps:
 
           - name: Update Toolchain
             shell: bash
             run: |
-                eval "$(/opt/homebrew/bin/brew shellenv)"
                 brew update
                 brew install ninja cmake
 
