@@ -27,15 +27,11 @@ jobs:
             should_build: ${{steps.should_build.outputs.should_build}}
         steps:
 
-          - name: Checkout This Repo
-            uses: actions/checkout@v4
-            with:
-                ref: main
-
           - name: Check This Repo's Tags
             id: should_build
             shell: bash
             run: |
+                git clone https://github.com/cherryridge/dep_llvm
                 cd dep_llvm
                 git fetch --tags
                 if git tag -l | grep -q "^${{inputs.llvmMajor}}$"; then
