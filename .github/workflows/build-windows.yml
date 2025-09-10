@@ -22,7 +22,7 @@ jobs:
         runs-on: windows-latest
         steps:
 
-          - name: Enable MSVC toolchain env
+          - name: Enable MSVC Toolchain Environment
             uses: ilammy/msvc-dev-cmd@v1
             with:
                 arch: x64
@@ -61,7 +61,7 @@ jobs:
         runs-on: windows-latest
         steps:
 
-          - name: Enable MSVC toolchain env
+          - name: Enable MSVC Toolchain Environment
             uses: ilammy/msvc-dev-cmd@v1
             with:
                 arch: amd64_arm64
