@@ -53,7 +53,7 @@ jobs:
           - name: Compress Product
             shell: pwsh
             run: |
-                7z a llvm_macos_x64.7z ./install/*
+                7z a llvm_macos_x64.7z ./llvm-project/install/*
 
           - name: Upload Archive
             uses: actions/upload-artifact@v4
@@ -93,7 +93,7 @@ jobs:
           - name: Compress Product
             shell: pwsh
             run: |
-                7z a llvm_macos_arm64.7z ./install/*
+                7z a llvm_macos_arm64.7z ./llvm-project/install/*
 
           - name: Upload Archive
             uses: actions/upload-artifact@v4
