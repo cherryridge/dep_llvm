@@ -35,13 +35,22 @@ jobs:
             run: |
                 git clone https://github.com/llvm/llvm-project --depth 1 --branch release/${{inputs.llvmMajor}}.x
 
+          - name: Configure LLVM ${{inputs.llvmMajor}}
+            shell: pwsh
+            run: |
+                cd llvm-project
+                cmake -S llvm -B build -G Ninja -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_INSTALL_PREFIX="$PWD/install" -DLLVM_ENABLE_PROJECTS="clang;lld" -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_ZLIB=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=ON -DLLVM_INCLUDE_UTILS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_TARGETS_TO_BUILD="X86;AArch64" -DLLVM_INCLUDE_BENCHMARKS=OFF
+
           - name: Build LLVM ${{inputs.llvmMajor}}
             shell: pwsh
             run: |
                 cd llvm-project
-                mkdir build
-                cmake -S llvm -B build -G Ninja -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_INSTALL_PREFIX="$PWD/install" -DLLVM_ENABLE_PROJECTS="clang;lld" -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_ZLIB=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=ON -DLLVM_INCLUDE_UTILS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_TARGETS_TO_BUILD="X86;AArch64" -DLLVM_INCLUDE_BENCHMARKS=OFF
                 cmake --build build --config MinSizeRel --parallel
+
+          - name: Install LLVM ${{inputs.llvmMajor}}
+            shell: pwsh
+            run: |
+                cd llvm-project
                 cmake --install build --config MinSizeRel
 
           - name: Compress Product
@@ -74,19 +83,29 @@ jobs:
             run: |
                 git clone https://github.com/llvm/llvm-project --depth 1 --branch release/${{inputs.llvmMajor}}.x
 
-          - name: Build host (x64) tblgen tools
+          - name: Build Host (x64) Tblgen
             shell: pwsh
             run: |
                 cd llvm-project
                 cmake -S llvm -B build-host -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_ENABLE_PROJECTS="clang"
                 cmake --build build-host --target llvm-tblgen clang-tblgen llvm-min-tblgen --config Release --parallel
 
-          - name: Build LLVM ${{inputs.llvmMajor}}
+          - name: Configure LLVM ${{inputs.llvmMajor}}
             shell: pwsh
             run: |
                 cd llvm-project
                 cmake -S llvm -B build -G Ninja -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_INSTALL_PREFIX="$PWD/install" -DLLVM_ENABLE_PROJECTS="clang;lld" -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_ZLIB=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=ON -DLLVM_INCLUDE_UTILS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_TARGETS_TO_BUILD="X86;AArch64" -DLLVM_INCLUDE_BENCHMARKS=OFF -DCMAKE_SYSTEM_PROCESSOR=ARM64 -DLLVM_NATIVE_TOOL_DIR="$PWD/llvm-project/build-host/bin"
+
+          - name: Build LLVM ${{inputs.llvmMajor}}
+            shell: pwsh
+            run: |
+                cd llvm-project
                 cmake --build build --config MinSizeRel --parallel
+
+          - name: Install LLVM ${{inputs.llvmMajor}}
+            shell: pwsh
+            run: |
+                cd llvm-project
                 cmake --install build --config MinSizeRel
 
           - name: Compress Product
