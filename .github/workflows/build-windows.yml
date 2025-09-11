@@ -88,7 +88,7 @@ jobs:
             run: |
                 cd llvm-project
                 cmake -S llvm -B build-host -G Ninja -DCMAKE_BUILD_TYPE=Release -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_ENABLE_PROJECTS="clang"
-                cmake --build build-host --target llvm-tblgen clang-tblgen llvm-min-tblgen llvm-config --config Release --parallel
+                cmake --build build-host --target llvm-tblgen clang-tblgen llvm-min-tblgen llvm-config llvm-nm --config Release --parallel
 
           - name: Reconfigure MSVC Toolchain Environment
             uses: ilammy/msvc-dev-cmd@v1
