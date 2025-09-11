@@ -19,15 +19,8 @@ on:
 
 jobs:
     x64:
-        runs-on: macos-latest
+        runs-on: macos-13
         steps:
-
-          - name: Install x64 Zstd
-            shell: bash
-            run: |
-                arch -x86_64 /bin/bash -lc '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
-                which -a brew
-                arch -x86_64 /usr/local/bin/brew install zstd
 
           - name: Checkout LLVM
             shell: bash
@@ -38,7 +31,7 @@ jobs:
             shell: bash
             run: |
                 cd llvm-project
-                cmake -S llvm -B build -G Ninja -DCMAKE_PREFIX_PATH=/usr/local -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX="$PWD/install" -DCMAKE_OSX_ARCHITECTURES="x86_64" -DLLVM_ENABLE_PROJECTS="clang;lld" -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_ZLIB=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=ON -DLLVM_INCLUDE_UTILS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_TARGETS_TO_BUILD=X86 -DLLVM_INCLUDE_BENCHMARKS=OFF -DCMAKE_IGNORE_PATH=/opt/homebrew -DZSTD_INCLUDE_DIR=/usr/local/include -DZSTD_LIBRARY=/usr/local/lib/libzstd.dylib
+                cmake -S llvm -B build -G Ninja -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX="$PWD/install" -DLLVM_ENABLE_PROJECTS="clang;lld" -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_ZLIB=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=ON -DLLVM_INCLUDE_UTILS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_TARGETS_TO_BUILD=X86 -DLLVM_INCLUDE_BENCHMARKS=OFF -DCMAKE_OSX_ARCHITECTURES="x86_64"
 
           - name: Build LLVM ${{inputs.llvmMajor}}
             shell: bash
@@ -78,7 +71,7 @@ jobs:
             shell: bash
             run: |
                 cd llvm-project
-                cmake -S llvm -B build -G Ninja -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX="$PWD/install" -DCMAKE_OSX_ARCHITECTURES="arm64" -DLLVM_ENABLE_PROJECTS="clang;lld" -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_ZLIB=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=ON -DLLVM_INCLUDE_UTILS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_TARGETS_TO_BUILD=AArch64 -DLLVM_INCLUDE_BENCHMARKS=OFF
+                cmake -S llvm -B build -G Ninja -DCMAKE_BUILD_TYPE=MinSizeRel -DCMAKE_INSTALL_PREFIX="$PWD/install" -DLLVM_ENABLE_PROJECTS="clang;lld" -DLLVM_ENABLE_TERMINFO=OFF -DLLVM_ENABLE_ZLIB=OFF -DLLVM_INCLUDE_DOCS=OFF -DLLVM_INCLUDE_EXAMPLES=OFF -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_TOOLS=ON -DLLVM_INCLUDE_UTILS=OFF -DLLVM_OPTIMIZED_TABLEGEN=ON -DLLVM_TARGETS_TO_BUILD=AArch64 -DLLVM_INCLUDE_BENCHMARKS=OFF -DCMAKE_OSX_ARCHITECTURES="arm64"
 
           - name: Build LLVM ${{inputs.llvmMajor}}
             shell: bash
