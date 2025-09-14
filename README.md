@@ -4,4 +4,4 @@
 
 Released artifacts are licensed under the original project's licenses.
 
-GitHub workflow files are licensed under the [MIT license](https://github.com/cherryridge/dep_wasmer/blob/main/LICENSE).
+GitHub workflow files are licensed under the [MIT license](https://github.com/cherryridge/dep_llvm/blob/main/LICENSE).
